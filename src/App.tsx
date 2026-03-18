@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Decimal } from "decimal.js"; // อย่าลืม npm i decimal.js
 
 const InvoiceDemo = () => {
