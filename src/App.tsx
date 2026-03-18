@@ -112,11 +112,11 @@ const InvoiceDemo = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-10 border-t-8 border-blue-600 relative overflow-hidden">
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-5 md:p-10 border-t-8 border-blue-600 relative overflow-hidden">
         {/* Watermark */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-0">
-          <span className="text-[6rem] md:text-[10rem] font-black text-gray-200 opacity-40 -rotate-45 select-none whitespace-nowrap">
+          <span className="text-[4rem] sm:text-[6rem] md:text-[10rem] font-black text-gray-200 opacity-40 -rotate-45 select-none whitespace-nowrap">
             Apichet.J
           </span>
         </div>
@@ -125,7 +125,7 @@ const InvoiceDemo = () => {
         <div className="flex flex-col md:flex-row justify-between mb-10 border-b border-gray-100 pb-8">
           {/* ซ้าย: ข้อมูลเอกสาร */}
           <div className="w-full md:w-1/2">
-            <h1 className="text-3xl font-bold text-blue-600 tracking-tight mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tight mb-4">
               INVOICE
             </h1>
 
@@ -134,7 +134,7 @@ const InvoiceDemo = () => {
                 <span className="w-28 font-semibold">เลขที่บิล:</span>
                 <input
                   type="text"
-                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-48"
+                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48"
                   value={invoiceMeta.invoiceNo}
                   onChange={(e) => updateMeta("invoiceNo", e.target.value)}
                 />
@@ -144,7 +144,7 @@ const InvoiceDemo = () => {
                 <input
                   type="text"
                   placeholder="เช่น PO-2026-001"
-                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-48 bg-yellow-50"
+                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48 bg-yellow-50"
                   value={invoiceMeta.refPo}
                   onChange={(e) => updateMeta("refPo", e.target.value)}
                 />
@@ -161,7 +161,7 @@ const InvoiceDemo = () => {
               เลขประจำตัวผู้เสียภาษี: 1-2345-67890-12-3
             </p>
 
-            <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100 inline-block text-left w-full max-w-sm ml-auto">
+            <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100 inline-block text-left w-full md:max-w-sm ml-auto">
               <div className="text-gray-500 flex items-center">
                 วันที่ออกบิล:
               </div>
@@ -195,74 +195,76 @@ const InvoiceDemo = () => {
         </div>
 
         {/* Table Section */}
-        <table className="w-full text-left mb-6">
-          <thead>
-            <tr className="border-b-2 border-gray-100 text-gray-400 text-xs uppercase tracking-wider">
-              <th className="py-3 px-2">รายละเอียด</th>
-              <th className="py-3 px-2 w-20 text-center">จำนวน</th>
-              <th className="py-3 px-2 w-28 text-right">ราคา/หน่วย</th>
-              <th className="py-3 px-2 w-48 text-center">ส่วนลดสินค้า</th>
-              <th className="py-3 px-2 w-32 text-right">รวมเงิน</th>
-            </tr>
-          </thead>
-          <tbody>
-            {calculatedItems.map((item, idx) => (
-              <tr key={idx} className="border-b border-gray-50">
-                <td className="py-4 px-2">
-                  <input
-                    className="w-full bg-transparent focus:ring-0"
-                    placeholder="ชื่อรายการ..."
-                    value={item.desc}
-                    onChange={(e) => updateItem(idx, "desc", e.target.value)}
-                  />
-                </td>
-                <td className="py-4 px-2 text-center">
-                  <input
-                    type="number"
-                    className="w-16 border rounded p-1 text-center"
-                    value={item.qty}
-                    onChange={(e) => updateItem(idx, "qty", e.target.value)}
-                  />
-                </td>
-                <td className="py-4 px-2 text-right">
-                  <input
-                    type="number"
-                    className="w-24 border rounded p-1 text-right"
-                    value={item.price}
-                    onChange={(e) => updateItem(idx, "price", e.target.value)}
-                  />
-                </td>
-                <td className="py-4 px-2">
-                  <div className="flex items-center space-x-1 justify-center">
+        <div className="overflow-x-auto -mx-2 md:mx-0 mb-6">
+          <table className="w-full text-left min-w-[800px]">
+            <thead>
+              <tr className="border-b-2 border-gray-100 text-gray-400 text-xs uppercase tracking-wider">
+                <th className="py-3 px-2">รายละเอียด</th>
+                <th className="py-3 px-2 w-20 text-center">จำนวน</th>
+                <th className="py-3 px-2 w-28 text-right">ราคา/หน่วย</th>
+                <th className="py-3 px-2 w-48 text-center">ส่วนลดสินค้า</th>
+                <th className="py-3 px-2 w-32 text-right">รวมเงิน</th>
+              </tr>
+            </thead>
+            <tbody>
+              {calculatedItems.map((item, idx) => (
+                <tr key={idx} className="border-b border-gray-50">
+                  <td className="py-4 px-2">
+                    <input
+                      className="w-full bg-transparent focus:ring-0"
+                      placeholder="ชื่อรายการ..."
+                      value={item.desc}
+                      onChange={(e) => updateItem(idx, "desc", e.target.value)}
+                    />
+                  </td>
+                  <td className="py-4 px-2 text-center">
                     <input
                       type="number"
-                      className="w-20 border rounded p-1 text-right text-red-500"
-                      value={item.discValue}
-                      onChange={(e) =>
-                        updateItem(idx, "discValue", e.target.value)
-                      }
+                      className="w-16 border rounded p-1 text-center"
+                      value={item.qty}
+                      onChange={(e) => updateItem(idx, "qty", e.target.value)}
                     />
-                    <select
-                      className="text-xs border rounded p-1"
-                      value={item.discType}
-                      onChange={(e) =>
-                        updateItem(idx, "discType", e.target.value)
-                      }
-                    >
-                      <option value="fixed">฿</option>
-                      <option value="percent">%</option>
-                    </select>
-                  </div>
-                </td>
-                <td className="py-4 px-2 text-right font-semibold">
-                  {item.rowTotal
-                    .toNumber()
-                    .toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                  <td className="py-4 px-2 text-right">
+                    <input
+                      type="number"
+                      className="w-24 border rounded p-1 text-right"
+                      value={item.price}
+                      onChange={(e) => updateItem(idx, "price", e.target.value)}
+                    />
+                  </td>
+                  <td className="py-4 px-2">
+                    <div className="flex items-center space-x-1 justify-center">
+                      <input
+                        type="number"
+                        className="w-20 border rounded p-1 text-right text-red-500"
+                        value={item.discValue}
+                        onChange={(e) =>
+                          updateItem(idx, "discValue", e.target.value)
+                        }
+                      />
+                      <select
+                        className="text-xs border rounded p-1"
+                        value={item.discType}
+                        onChange={(e) =>
+                          updateItem(idx, "discType", e.target.value)
+                        }
+                      >
+                        <option value="fixed">฿</option>
+                        <option value="percent">%</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td className="py-4 px-2 text-right font-semibold">
+                    {item.rowTotal
+                      .toNumber()
+                      .toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <button
           onClick={() =>
