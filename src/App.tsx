@@ -31,11 +31,11 @@ const InvoiceDemo = () => {
   const [globalDiscount, setGlobalDiscount] = useState({
     type: "fixed",
     value: 0,
-  });
+  } as any);
   const [taxConfig, setTaxConfig] = useState({ isVat: true, isWHT: false });
 
   // --- 📅 Date Calculation ---
-  const calculateDueDate = (dateStr, days) => {
+  const calculateDueDate = (dateStr: string, days: number) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
     date.setDate(date.getDate() + Number(days));
@@ -101,13 +101,13 @@ const InvoiceDemo = () => {
   const netPayable = grandTotal.minus(whtAmount);
 
   // --- 🖱️ Handlers ---
-  const updateItem = (index, field, value) => {
-    const newItems = [...items];
+  const updateItem = (index: number, field: string, value: string) => {
+    const newItems: any = [...items];
     newItems[index][field] = value;
     setItems(newItems);
   };
 
-  const updateMeta = (field, value) => {
+  const updateMeta = (field: string, value: string) => {
     setInvoiceMeta({ ...invoiceMeta, [field]: value });
   };
 
@@ -318,7 +318,7 @@ const InvoiceDemo = () => {
                 type="number"
                 className="w-20 text-right bg-transparent border-b border-red-300 text-red-600 font-semibold focus:outline-none"
                 value={globalDiscount.value}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setGlobalDiscount({
                     ...globalDiscount,
                     value: e.target.value,
