@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Decimal } from "decimal.js";
 import ThaiBaht from "thai-baht-text"; // npm i thai-baht-text
 
