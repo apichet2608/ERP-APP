@@ -36,8 +36,8 @@ const InvoiceDemo = () => {
   // --- Handlers ---
   const addItem = () => setItems([...items, { desc: "", qty: 1, price: 0 }]);
 
-  const updateItem = (index, field, value) => {
-    const newItems = [...items];
+  const updateItem = (index: number, field: string, value: string) => {
+    const newItems: any = [...items];
     newItems[index][field] = value;
     setItems(newItems);
   };
