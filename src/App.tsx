@@ -113,7 +113,14 @@ const InvoiceDemo = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-10 border-t-8 border-blue-600">
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-10 border-t-8 border-blue-600 relative overflow-hidden">
+        {/* Watermark */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-0">
+          <span className="text-[6rem] md:text-[10rem] font-black text-gray-200 opacity-40 -rotate-45 select-none whitespace-nowrap">
+            Apichet.J
+          </span>
+        </div>
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between mb-10 border-b border-gray-100 pb-8">
           {/* ซ้าย: ข้อมูลเอกสาร */}
