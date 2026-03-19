@@ -25,7 +25,7 @@ const InvoiceDemo = () => {
       refNo: "XXXX-01",
       desc: "Software Development",
       qty: 1,
-      price: 10000,
+      price: 0,
       discType: "fixed",
       discValue: 0,
     },
@@ -34,7 +34,7 @@ const InvoiceDemo = () => {
       refNo: "XXXX-02",
       desc: "Hardware",
       qty: 1,
-      price: 30000,
+      price: 0,
       discType: "percent",
       discValue: 10,
     },
@@ -193,6 +193,11 @@ const InvoiceDemo = () => {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
             gap: 8px !important;
+          }
+          .grid-print-4 {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 16px !important;
           }
           .nowrap-print {
             white-space: nowrap !important;
@@ -531,9 +536,9 @@ const InvoiceDemo = () => {
                       placeholder="ชื่อรายการ..."
                       value={item.desc}
                       onChange={(e) => {
-                         e.target.style.height = 'inherit';
-                         e.target.style.height = `${e.target.scrollHeight}px`;
-                         updateItem(idx, "desc", e.target.value);
+                        e.target.style.height = "inherit";
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                        updateItem(idx, "desc", e.target.value);
                       }}
                     />
                     <div className="hidden print:block whitespace-pre-wrap break-words">
@@ -580,7 +585,9 @@ const InvoiceDemo = () => {
                       </select>
                     </div>
                     <div className="hidden print:block text-center text-gray-800">
-                      {item.discValue > 0 ? `${item.discValue} ${item.discType === "fixed" ? "฿" : "%"}` : "-"}
+                      {item.discValue > 0
+                        ? `${item.discValue} ${item.discType === "fixed" ? "฿" : "%"}`
+                        : "-"}
                     </div>
                   </td>
                   <td className="py-4 px-2 text-right font-semibold col-total align-top">
