@@ -175,6 +175,14 @@ const InvoiceDemo = () => {
           .no-print, .no-print * {
             display: none !important;
           }
+          /* Print Page break rules */
+          thead {
+            display: table-header-group !important;
+          }
+          .avoid-break {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
           /* Force Flex Layouts */
           .flex-print-row {
             display: flex !important;
@@ -185,6 +193,18 @@ const InvoiceDemo = () => {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
+          .flex-print-4 {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .flex-print-4 > div {
+            width: 23% !important;
+          }
           .w-print-1-2 {
             width: 48% !important;
           }
@@ -194,18 +214,13 @@ const InvoiceDemo = () => {
             grid-template-columns: 1fr 1fr !important;
             gap: 8px !important;
           }
-          .grid-print-4 {
-            display: grid !important;
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 16px !important;
-          }
           .nowrap-print {
             white-space: nowrap !important;
           }
           /* Table Column Widths */
-          .col-code { width: 14% !important; }
+          .col-code { width: 13% !important; }
           .col-desc { width: 33% !important; }
-          .col-qty { width: 8% !important; }
+          .col-qty { width: 9% !important; }
           .col-price { width: 13% !important; }
           .col-disc { width: 15% !important; }
           .col-total { width: 17% !important; }
@@ -223,11 +238,19 @@ const InvoiceDemo = () => {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          td, th {
+          td {
             padding-top: 4px !important;
             padding-bottom: 4px !important;
             font-size: 13px !important;
             word-break: break-word !important;
+            vertical-align: top !important;
+          }
+          th {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            font-size: 13px !important;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
           }
           
           /* Watermark Adjustments */
@@ -641,7 +664,7 @@ const InvoiceDemo = () => {
         </button>
 
         {/* Summary */}
-        <div className="flex flex-col md:flex-row justify-between border-t border-gray-200 pt-6 flex-print-row items-end print:pt-4">
+        <div className="flex flex-col md:flex-row justify-between border-t border-gray-200 pt-6 flex-print-row items-end print:pt-4 avoid-break">
           {/* ซ้าย: แสดงตัวอักษรภาษาไทย */}
           <div className="w-full md:w-1/2 mb-6 md:mb-0 pr-0 md:pr-8 flex flex-col justify-end w-print-1-2 h-full print:mb-0">
             <div className="bg-blue-50 text-blue-800 text-center p-4 rounded-lg font-semibold shadow-inner border border-blue-100 print:p-2 print:text-sm">
@@ -772,7 +795,7 @@ const InvoiceDemo = () => {
         </div>
 
         {/* Signatures */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-8 border-t border-gray-200 print:mt-12 print:pt-8 grid-print-4 text-gray-700">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-8 border-t border-gray-200 print:mt-12 print:pt-8 flex-print-4 avoid-break text-gray-700">
           <div className="text-center flex flex-col items-center">
             <div className="border-b border-gray-400 border-solid w-3/4 mt-12 mb-3"></div>
             <p className="text-sm font-semibold">ผู้รับสินค้า</p>
