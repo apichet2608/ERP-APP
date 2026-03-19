@@ -10,7 +10,7 @@ const mockProducts = [
   { id: "P005", name: "Network Setup", price: 8000 },
 ];
 
-const mockHistory = [
+const initialHistory = [
   {
     id: "INV-2026-001",
     date: "2026-03-01",
@@ -18,6 +18,16 @@ const mockHistory = [
     total: 28408,
     status: "PAID",
     customer: "บริษัท เอบีซี จำกัด",
+    fullData: {
+      docType: "TAX_INVOICE",
+      invoiceMeta: { invoiceNo: "INV-2026-001", refPo: "PO-001", issueDate: "2026-03-01", creditDays: 30, customerName: "บริษัท เอบีซี จำกัด" },
+      items: [
+        { id: 1, refNo: "P001", desc: "Software License", qty: 1, price: 15000, discType: "fixed", discValue: 0 },
+        { id: 2, refNo: "P005", desc: "Network Setup", qty: 1, price: 8000, discType: "fixed", discValue: 0 },
+      ],
+      globalDiscount: { type: "fixed", value: 0 },
+      taxConfig: { isVat: true, isWHT: false },
+    }
   },
   {
     id: "INV-2026-002",
@@ -26,6 +36,16 @@ const mockHistory = [
     total: 4500,
     status: "PENDING",
     customer: "นายสมชาย ใจดี",
+    fullData: {
+      docType: "QUOTATION",
+      invoiceMeta: { invoiceNo: "INV-2026-002", refPo: "", issueDate: "2026-03-15", creditDays: 15, customerName: "นายสมชาย ใจดี" },
+      items: [
+        { id: 1, refNo: "P002", desc: "Web Hosting (1 Year)", qty: 1, price: 3500, discType: "fixed", discValue: 0 },
+        { id: 2, refNo: "SRV", desc: "Service Charge", qty: 1, price: 1000, discType: "fixed", discValue: 0 },
+      ],
+      globalDiscount: { type: "fixed", value: 0 },
+      taxConfig: { isVat: false, isWHT: false },
+    }
   },
   {
     id: "INV-2026-003",
@@ -34,6 +54,16 @@ const mockHistory = [
     total: 8500,
     status: "PAID",
     customer: "บริษัท ดีอีเอฟ จำกัด",
+    fullData: {
+      docType: "RECEIPT",
+      invoiceMeta: { invoiceNo: "INV-2026-003", refPo: "PO-999", issueDate: "2026-03-18", creditDays: 0, customerName: "บริษัท ดีอีเอฟ จำกัด" },
+      items: [
+        { id: 1, refNo: "P004", desc: "Hardware Repair Service", qty: 2, price: 1200, discType: "fixed", discValue: 0 },
+        { id: 2, refNo: "P003", desc: "IT Consultation (Hour)", qty: 3, price: 2000, discType: "fixed", discValue: 0 },
+      ],
+      globalDiscount: { type: "fixed", value: 400 },
+      taxConfig: { isVat: true, isWHT: true },
+    }
   },
 ];
 
@@ -57,11 +87,14 @@ const InvoiceDemo = () => {
     TAX_INVOICE: { th: "ใบกำกับภาษี", en: "TAX INVOICE" },
   };
 
+  const [historyList, setHistoryList] = useState(initialHistory);
+
   const [invoiceMeta, setInvoiceMeta] = useState({
     invoiceNo: `INV-${new Date().getFullYear()}-001`,
     refPo: "",
     issueDate: new Date().toISOString().split("T")[0],
     creditDays: 30,
+    customerName: "",
   });
 
   const [items, setItems] = useState([
@@ -173,7 +206,74 @@ const InvoiceDemo = () => {
     setItems(newItems);
   };
 
+  const viewInvoice = (doc: any) => {
+    setDocType(doc.fullData.docType);
+    setInvoiceMeta(doc.fullData.invoiceMeta);
+    setItems(doc.fullData.items);
+    setGlobalDiscount(doc.fullData.globalDiscount);
+    setTaxConfig(doc.fullData.taxConfig);
+    setViewMode("invoice");
+  };
+
+  const createNewInvoice = () => {
+    setDocType("TAX_INVOICE");
+    setInvoiceMeta({
+      invoiceNo: `INV-${new Date().getFullYear()}-${String(historyList.length + 1).padStart(3, "0")}`,
+      refPo: "",
+      issueDate: new Date().toISOString().split("T")[0],
+      creditDays: 30,
+      customerName: "",
+    });
+    setItems([
+      {
+        id: Date.now(),
+        refNo: "",
+        desc: "",
+        qty: 1,
+        price: 0,
+        discType: "fixed",
+        discValue: 0,
+      },
+    ]);
+    setGlobalDiscount({ type: "fixed", value: 0 });
+    setTaxConfig({ isVat: true, isWHT: false });
+    setViewMode("invoice");
+  };
+
+  const saveInvoice = () => {
+    const existingIndex = historyList.findIndex(
+      (doc) => doc.id === invoiceMeta.invoiceNo,
+    );
+    const newObj = {
+      id: invoiceMeta.invoiceNo,
+      date: invoiceMeta.issueDate,
+      type: docType,
+      total: netPayable.toNumber(),
+      status: "PENDING",
+      customer: invoiceMeta.customerName || "ไม่ระบุชื่อลูกค้า",
+      fullData: {
+        docType,
+        invoiceMeta,
+        items,
+        globalDiscount,
+        taxConfig,
+      },
+    };
+
+    if (existingIndex >= 0) {
+      const newList = [...historyList];
+      newList[existingIndex] = newObj;
+      setHistoryList(newList);
+    } else {
+      setHistoryList([newObj, ...historyList]);
+    }
+    setViewMode("dashboard");
+  };
+
   if (viewMode === "dashboard") {
+    const totalAmount = historyList.reduce((acc, doc) => acc + doc.total, 0);
+    const paidCount = historyList.filter((doc) => doc.status === "PAID").length;
+    const pendingCount = historyList.filter((doc) => doc.status === "PENDING").length;
     return (
       <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
         <div className="max-w-5xl mx-auto">
@@ -182,7 +282,7 @@ const InvoiceDemo = () => {
               แดชบอร์ดประวัติเอกสาร
             </h1>
             <button
-              onClick={() => setViewMode("invoice")}
+              onClick={createNewInvoice}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors cursor-pointer"
             >
               + สร้างเอกสารใหม่
@@ -195,7 +295,7 @@ const InvoiceDemo = () => {
                 ยอดรวมทั้งหมด (เดือนนี้)
               </h3>
               <p className="text-2xl font-black text-gray-800">
-                41,408{" "}
+                {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}{" "}
                 <span className="text-sm font-normal text-gray-500">THB</span>
               </p>
             </div>
@@ -203,13 +303,13 @@ const InvoiceDemo = () => {
               <h3 className="text-gray-500 text-sm font-semibold mb-1">
                 ชำระแล้ว
               </h3>
-              <p className="text-2xl font-black text-green-600">2 รายการ</p>
+              <p className="text-2xl font-black text-green-600">{paidCount} รายการ</p>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
               <h3 className="text-gray-500 text-sm font-semibold mb-1">
                 รอชำระ
               </h3>
-              <p className="text-2xl font-black text-orange-600">1 รายการ</p>
+              <p className="text-2xl font-black text-orange-600">{pendingCount} รายการ</p>
             </div>
           </div>
 
@@ -233,7 +333,7 @@ const InvoiceDemo = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {mockHistory.map((doc, idx) => (
+                  {historyList.map((doc, idx) => (
                     <tr
                       key={idx}
                       className="hover:bg-gray-50 transition-colors"
@@ -251,7 +351,7 @@ const InvoiceDemo = () => {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right font-bold text-gray-800">
-                        {doc.total.toLocaleString()} ฿
+                        {doc.total.toLocaleString(undefined, { minimumFractionDigits: 2 })} ฿
                       </td>
                       <td className="py-4 px-6 text-center">
                         <span
@@ -265,32 +365,58 @@ const InvoiceDemo = () => {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <button
-                          onClick={() => setViewMode("invoice")}
-                          className="text-gray-400 hover:text-blue-600 transition-colors"
-                          title="ดูรายละเอียด"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 mx-auto"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                        <div className="flex justify-center space-x-2">
+                          <button
+                            onClick={() => {
+                              const newList = [...historyList];
+                              newList[idx].status = newList[idx].status === 'PAID' ? 'PENDING' : 'PAID';
+                              setHistoryList(newList);
+                            }}
+                            className={`${doc.status === 'PAID' ? 'text-green-600 hover:text-green-800' : 'text-orange-500 hover:text-orange-700'} transition-colors cursor-pointer`}
+                            title="เปลี่ยนสถานะ"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => viewInvoice(doc)}
+                            className="text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
+                            title="ดูรายละเอียด"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 mx-auto"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setHistoryList(historyList.filter((_, i) => i !== idx));
+                            }}
+                            className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
+                            title="ลบเอกสาร"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -466,24 +592,35 @@ const InvoiceDemo = () => {
           </svg>
           กลับหน้าแดชบอร์ด
         </button>
-        <button
-          onClick={() => window.print()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+        <div className="flex gap-2">
+          <button
+            onClick={saveInvoice}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm cursor-pointer"
           >
-            <path
-              fillRule="evenodd"
-              d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 012 2h6a2 2 0 012-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          พิมพ์เอกสาร (PDF)
-        </button>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+            บันทึก
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 012 2h6a2 2 0 012-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            พิมพ์เอกสาร (PDF)
+          </button>
+        </div>
       </div>
 
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-5 md:p-10 border-t-8 border-blue-600 relative overflow-visible print-container">
@@ -529,6 +666,18 @@ const InvoiceDemo = () => {
             </div>
 
             <div className="space-y-3 text-sm text-gray-700 print:space-y-1">
+              <div className="flex items-center">
+                <span className="w-28 font-semibold nowrap-print">
+                  ลูกค้า:
+                </span>
+                <input
+                  type="text"
+                  placeholder="ชื่อลูกค้า / บริษัท..."
+                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48 bg-blue-50 print:bg-transparent print:border-none print:p-0 print:font-bold"
+                  value={invoiceMeta.customerName}
+                  onChange={(e) => updateMeta("customerName", e.target.value)}
+                />
+              </div>
               <div className="flex items-center">
                 <span className="w-28 font-semibold nowrap-print">
                   เลขที่เอกสาร:
