@@ -2,7 +2,52 @@ import { useState } from "react";
 import { Decimal } from "decimal.js";
 import ThaiBaht from "thai-baht-text"; // npm i thai-baht-text
 
+const mockProducts = [
+  { id: "P001", name: "Software License", price: 15000 },
+  { id: "P002", name: "Web Hosting (1 Year)", price: 3500 },
+  { id: "P003", name: "IT Consultation (Hour)", price: 2000 },
+  { id: "P004", name: "Hardware Repair Service", price: 1200 },
+  { id: "P005", name: "Network Setup", price: 8000 },
+];
+
+const mockHistory = [
+  {
+    id: "INV-2026-001",
+    date: "2026-03-01",
+    type: "TAX_INVOICE",
+    total: 28408,
+    status: "PAID",
+    customer: "บริษัท เอบีซี จำกัด",
+  },
+  {
+    id: "INV-2026-002",
+    date: "2026-03-15",
+    type: "QUOTATION",
+    total: 4500,
+    status: "PENDING",
+    customer: "นายสมชาย ใจดี",
+  },
+  {
+    id: "INV-2026-003",
+    date: "2026-03-18",
+    type: "RECEIPT",
+    total: 8500,
+    status: "PAID",
+    customer: "บริษัท ดีอีเอฟ จำกัด",
+  },
+];
+
+const docTypeLabels: any = {
+  QUOTATION: "ใบเสนอราคา",
+  DELIVERY_NOTE: "ใบส่งของ",
+  RECEIPT: "ใบเสร็จรับเงิน",
+  TAX_INVOICE: "ใบกำกับภาษี",
+};
+
 const InvoiceDemo = () => {
+  const [viewMode, setViewMode] = useState<"dashboard" | "invoice">(
+    "dashboard",
+  );
   // --- 📝 States ---
   const [docType, setDocType] = useState("TAX_INVOICE");
   const docTypeOptions = {
@@ -127,6 +172,136 @@ const InvoiceDemo = () => {
     const newItems = items.filter((_, i) => i !== index);
     setItems(newItems);
   };
+
+  if (viewMode === "dashboard") {
+    return (
+      <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-800">
+              แดชบอร์ดประวัติเอกสาร
+            </h1>
+            <button
+              onClick={() => setViewMode("invoice")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-colors cursor-pointer"
+            >
+              + สร้างเอกสารใหม่
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
+              <h3 className="text-gray-500 text-sm font-semibold mb-1">
+                ยอดรวมทั้งหมด (เดือนนี้)
+              </h3>
+              <p className="text-2xl font-black text-gray-800">
+                41,408{" "}
+                <span className="text-sm font-normal text-gray-500">THB</span>
+              </p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
+              <h3 className="text-gray-500 text-sm font-semibold mb-1">
+                ชำระแล้ว
+              </h3>
+              <p className="text-2xl font-black text-green-600">2 รายการ</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
+              <h3 className="text-gray-500 text-sm font-semibold mb-1">
+                รอชำระ
+              </h3>
+              <p className="text-2xl font-black text-orange-600">1 รายการ</p>
+            </div>
+          </div>
+
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-800">
+                ประวัติเอกสารล่าสุด
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                    <th className="py-3 px-6">เลขที่เอกสาร</th>
+                    <th className="py-3 px-6">วันที่</th>
+                    <th className="py-3 px-6">ลูกค้า</th>
+                    <th className="py-3 px-6">ประเภท</th>
+                    <th className="py-3 px-6 text-right">ยอดรวม</th>
+                    <th className="py-3 px-6 text-center">สถานะ</th>
+                    <th className="py-3 px-6 text-center">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {mockHistory.map((doc, idx) => (
+                    <tr
+                      key={idx}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="py-4 px-6 font-semibold text-blue-600">
+                        {doc.id}
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">{doc.date}</td>
+                      <td className="py-4 px-6 text-gray-800">
+                        {doc.customer}
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">
+                        <span className="bg-gray-100 text-gray-600 py-1 px-3 rounded-full text-xs font-semibold">
+                          {docTypeLabels[doc.type] || doc.type}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right font-bold text-gray-800">
+                        {doc.total.toLocaleString()} ฿
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <span
+                          className={`py-1 px-3 rounded-full text-xs font-semibold ${
+                            doc.status === "PAID"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-orange-100 text-orange-700"
+                          }`}
+                        >
+                          {doc.status === "PAID" ? "ชำระแล้ว" : "รอชำระ"}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <button
+                          onClick={() => setViewMode("invoice")}
+                          className="text-gray-400 hover:text-blue-600 transition-colors"
+                          title="ดูรายละเอียด"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 mx-auto"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800 print:bg-white print:p-0">
@@ -270,7 +445,27 @@ const InvoiceDemo = () => {
       `}</style>
 
       {/* Action Bar */}
-      <div className="max-w-5xl mx-auto flex justify-end mb-4 print:hidden">
+      <div className="max-w-5xl mx-auto flex justify-between items-center mb-4 print:hidden">
+        <button
+          onClick={() => setViewMode("dashboard")}
+          className="text-gray-500 hover:text-gray-800 flex items-center gap-2 transition-colors text-sm font-semibold"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          กลับหน้าแดชบอร์ด
+        </button>
         <button
           onClick={() => window.print()}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm"
@@ -643,25 +838,82 @@ const InvoiceDemo = () => {
           </table>
         </div>
 
-        <button
-          onClick={() =>
-            setItems([
-              ...items,
-              {
-                id: Date.now(),
-                refNo: "",
-                desc: "",
-                qty: 1,
-                price: 0,
-                discType: "fixed",
-                discValue: 0,
-              },
-            ])
-          }
-          className="text-blue-600 text-sm font-bold mb-10 print:hidden"
-        >
-          + เพิ่มรายการ
-        </button>
+        <div className="flex gap-4 mb-10 print:hidden text-sm font-bold">
+          <button
+            onClick={() =>
+              setItems([
+                ...items,
+                {
+                  id: Date.now(),
+                  refNo: "",
+                  desc: "",
+                  qty: 1,
+                  price: 0,
+                  discType: "fixed",
+                  discValue: 0,
+                },
+              ])
+            }
+            className="text-blue-600"
+          >
+            + เพิ่มรายการเปล่า
+          </button>
+
+          <div className="relative group">
+            <button className="text-green-600 flex items-center gap-1">
+              + เลือกสินค้าจาก Catalog
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div className="absolute top-full left-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 overflow-hidden">
+              <div className="bg-gray-50 px-4 py-2 text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                รายการสินค้าจำลอง
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {mockProducts.map((p) => (
+                  <div
+                    key={p.id}
+                    className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer text-gray-800 font-normal transition-colors"
+                    onClick={() =>
+                      setItems([
+                        ...items,
+                        {
+                          id: Date.now(),
+                          refNo: p.id,
+                          desc: p.name,
+                          qty: 1,
+                          price: p.price,
+                          discType: "fixed",
+                          discValue: 0,
+                        },
+                      ])
+                    }
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-semibold text-sm">{p.name}</span>
+                      <span className="text-blue-600 font-bold text-sm">
+                        {p.price.toLocaleString()} ฿
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-400">รหัส: {p.id}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Summary */}
         <div className="flex flex-col md:flex-row justify-between border-t border-gray-200 pt-6 flex-print-row items-end print:pt-4 avoid-break">
