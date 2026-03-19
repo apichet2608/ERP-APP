@@ -350,8 +350,28 @@ const InvoiceDemo = () => {
 
   if (viewMode === "dashboard") {
     const totalAmount = historyList.reduce((acc, doc) => acc + doc.total, 0);
-    const paidCount = historyList.filter((doc) => doc.status === "PAID").length;
-    const pendingCount = historyList.filter((doc) => doc.status === "PENDING").length;
+    
+    const paidList = historyList.filter((doc) => doc.status === "PAID");
+    const paidCount = paidList.length;
+    const paidAmount = paidList.reduce((acc, doc) => acc + doc.total, 0);
+    
+    const pendingList = historyList.filter((doc) => doc.status === "PENDING");
+    const pendingCount = pendingList.length;
+    const pendingAmount = pendingList.reduce((acc, doc) => acc + doc.total, 0);
+
+    const paidPercent = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
+    const pendingPercent = totalAmount > 0 ? Math.round((pendingAmount / totalAmount) * 100) : 0;
+
+    const maxMonthly = Math.max(40000, totalAmount);
+    const mockMonthlyData = [
+      { month: "ต.ค.", total: 12500, height: `${(12500 / maxMonthly) * 100}%` },
+      { month: "พ.ย.", total: 18400, height: `${(18400 / maxMonthly) * 100}%` },
+      { month: "ธ.ค.", total: 15000, height: `${(15000 / maxMonthly) * 100}%` },
+      { month: "ม.ค.", total: 22000, height: `${(22000 / maxMonthly) * 100}%` },
+      { month: "ก.พ.", total: 35000, height: `${(35000 / maxMonthly) * 100}%` },
+      { month: "มี.ค.", total: totalAmount, height: `${(totalAmount / maxMonthly) * 100}%` },
+    ];
+
     return (
       <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
         <WelcomeModal show={showWelcome} onClose={closeWelcome} />
@@ -389,6 +409,83 @@ const InvoiceDemo = () => {
                 รอชำระ
               </h3>
               <p className="text-2xl font-black text-orange-600">{pendingCount} รายการ</p>
+            </div>
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print:hidden">
+            {/* Chart 1: Revenue Trend (Bar Chart) */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+              <h2 className="text-lg font-bold text-gray-800 mb-6">แนวโน้มรายได้ (6 เดือนล่าสุด)</h2>
+              <div className="flex-1 flex items-end justify-between gap-2 h-48 mt-auto pb-6 relative">
+                {/* Horizontal grid lines */}
+                <div className="absolute inset-0 flex flex-col justify-between pb-6 pointer-events-none">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-full border-t border-gray-100 border-dashed h-0"></div>
+                  ))}
+                </div>
+                
+                {/* Bars */}
+                {mockMonthlyData.map((data, i) => (
+                  <div key={i} className="flex flex-col items-center w-full z-10 group cursor-pointer h-full justify-end">
+                    {/* Tooltip */}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs py-1 px-2 rounded absolute bottom-full mb-2 whitespace-nowrap z-20 pointer-events-none">
+                      {data.total.toLocaleString()} ฿
+                    </div>
+                    {/* Bar */}
+                    <div 
+                      className="w-full max-w-[40px] bg-blue-100 group-hover:bg-blue-600 rounded-t-sm transition-all duration-500 relative overflow-hidden"
+                      style={{ height: data.height }}
+                    >
+                      <div className="absolute bottom-0 w-full bg-blue-500 transition-all duration-500" style={{ height: '100%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-400 mt-2 font-medium">{data.month}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Chart 2: Status Distribution */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+              <h2 className="text-lg font-bold text-gray-800 mb-6">สัดส่วนสถานะบิล (เดือนนี้)</h2>
+              
+              <div className="flex-1 flex flex-col justify-center">
+                <div className="flex justify-between items-end mb-2">
+                  <div className="text-3xl font-black text-gray-800">{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-sm font-normal text-gray-500">THB</span></div>
+                </div>
+                
+                {/* Stacked Bar */}
+                <div className="h-6 w-full rounded-full flex overflow-hidden mb-6 shadow-inner">
+                  {totalAmount === 0 ? (
+                    <div className="h-full bg-gray-100 w-full"></div>
+                  ) : (
+                    <>
+                      <div className="h-full bg-green-500 transition-all" style={{ width: `${paidPercent}%` }} title={`ชำระแล้ว ${paidPercent}%`}></div>
+                      <div className="h-full bg-orange-400 transition-all" style={{ width: `${pendingPercent}%` }} title={`รอชำระ ${pendingPercent}%`}></div>
+                    </>
+                  )}
+                </div>
+
+                {/* Legends */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-xs font-bold text-green-700">ชำระแล้ว</span>
+                    </div>
+                    <div className="text-lg font-bold text-green-800">{paidAmount.toLocaleString(undefined, { minimumFractionDigits: 0 })} ฿</div>
+                    <div className="text-xs text-green-600 mt-1">{paidCount} รายการ ({paidPercent}%)</div>
+                  </div>
+                  <div className="bg-orange-50 rounded-lg p-3 border border-orange-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-3 h-3 rounded-full bg-orange-400"></div>
+                      <span className="text-xs font-bold text-orange-700">รอชำระ</span>
+                    </div>
+                    <div className="text-lg font-bold text-orange-800">{pendingAmount.toLocaleString(undefined, { minimumFractionDigits: 0 })} ฿</div>
+                    <div className="text-xs text-orange-600 mt-1">{pendingCount} รายการ ({pendingPercent}%)</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
