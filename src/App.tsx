@@ -4,6 +4,14 @@ import ThaiBaht from "thai-baht-text"; // npm i thai-baht-text
 
 const InvoiceDemo = () => {
   // --- 📝 States ---
+  const [docType, setDocType] = useState("TAX_INVOICE");
+  const docTypeOptions = {
+    QUOTATION: { th: "ใบเสนอราคา", en: "QUOTATION" },
+    DELIVERY_NOTE: { th: "ใบส่งของ", en: "DELIVERY NOTE" },
+    RECEIPT: { th: "ใบเสร็จรับเงิน", en: "RECEIPT" },
+    TAX_INVOICE: { th: "ใบกำกับภาษี", en: "TAX INVOICE" },
+  };
+
   const [invoiceMeta, setInvoiceMeta] = useState({
     invoiceNo: `INV-${new Date().getFullYear()}-001`,
     refPo: "",
@@ -232,6 +240,29 @@ const InvoiceDemo = () => {
           }
         }
       `}</style>
+
+      {/* Action Bar */}
+      <div className="max-w-5xl mx-auto flex justify-end mb-4 print:hidden">
+        <button
+          onClick={() => window.print()}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 012 2h6a2 2 0 012-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
+              clipRule="evenodd"
+            />
+          </svg>
+          พิมพ์เอกสาร (PDF)
+        </button>
+      </div>
+
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-5 md:p-10 border-t-8 border-blue-600 relative overflow-visible print-container">
         {/* Watermark */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center -z-10 overflow-hidden print:watermark-container-print">
@@ -245,33 +276,39 @@ const InvoiceDemo = () => {
           {/* ซ้าย: ข้อมูลเอกสาร */}
           <div className="w-full md:w-1/2 w-print-1-2">
             <div className="flex justify-between items-start mb-4 flex-print-row print:mb-2">
-              <h1 className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tight print:text-2xl">
-                INVOICE
-              </h1>
-              <button
-                onClick={() => window.print()}
-                className="print:hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm no-print"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 012 2h6a2 2 0 012-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                พิมพ์เอกสาร (PDF)
-              </button>
+              <div className="flex flex-col">
+                <div className="print:hidden">
+                  <select
+                    className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tight bg-transparent border-0 border-b-2 border-dashed border-blue-200 focus:border-blue-500 focus:ring-0 cursor-pointer p-0 pr-8 outline-none hover:border-blue-400 transition-colors"
+                    value={docType}
+                    onChange={(e) => setDocType(e.target.value)}
+                  >
+                    {Object.entries(docTypeOptions).map(([key, val]) => (
+                      <option
+                        key={key}
+                        value={key}
+                        className="text-base text-gray-800"
+                      >
+                        {val.th} ({val.en})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="hidden print:block mb-2">
+                  <h1 className="text-2xl font-bold text-blue-600 tracking-tight whitespace-nowrap">
+                    {docTypeOptions[docType as keyof typeof docTypeOptions].th}
+                  </h1>
+                  <h2 className="text-lg font-bold text-blue-600 tracking-tight whitespace-nowrap mt-1">
+                    {docTypeOptions[docType as keyof typeof docTypeOptions].en}
+                  </h2>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3 text-sm text-gray-700 print:space-y-1">
               <div className="flex items-center">
                 <span className="w-28 font-semibold nowrap-print">
-                  เลขที่บิล:
+                  เลขที่เอกสาร:
                 </span>
                 <input
                   type="text"
@@ -308,7 +345,7 @@ const InvoiceDemo = () => {
             </p>
             <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100 inline-block text-left w-full md:max-w-sm ml-auto print:bg-transparent print:border-none print:p-0 grid-print-2">
               <div className="text-gray-500 flex items-center nowrap-print">
-                วันที่ออกบิล:
+                วันที่ออกเอกสาร:
               </div>
               <div className="nowrap-print">
                 <input
@@ -476,53 +513,63 @@ const InvoiceDemo = () => {
             <tbody>
               {calculatedItems.map((item, idx) => (
                 <tr key={idx} className="border-b border-gray-50 group">
-                  <td className="py-4 px-2 col-code">
+                  <td className="py-4 px-2 col-code align-top">
                     <input
-                      className="w-full bg-transparent focus:ring-0 print:border-none print:p-0 print:font-semibold"
+                      className="w-full bg-transparent focus:ring-0 print:hidden"
                       placeholder="รหัส..."
                       value={item.refNo}
                       onChange={(e) => updateItem(idx, "refNo", e.target.value)}
                     />
+                    <div className="hidden print:block font-semibold break-words">
+                      {item.refNo}
+                    </div>
                   </td>
-                  <td className="py-4 px-2 col-desc">
-                    <input
-                      className="w-full bg-transparent focus:ring-0 print:border-none print:p-0"
+                  <td className="py-4 px-2 col-desc align-top">
+                    <textarea
+                      className="w-full bg-transparent focus:ring-0 print:hidden resize-none overflow-hidden block"
+                      rows={1}
                       placeholder="ชื่อรายการ..."
                       value={item.desc}
-                      onChange={(e) => updateItem(idx, "desc", e.target.value)}
+                      onChange={(e) => {
+                         e.target.style.height = 'inherit';
+                         e.target.style.height = `${e.target.scrollHeight}px`;
+                         updateItem(idx, "desc", e.target.value);
+                      }}
                     />
+                    <div className="hidden print:block whitespace-pre-wrap break-words">
+                      {item.desc}
+                    </div>
                   </td>
-                  <td className="py-4 px-2 text-center col-qty">
+                  <td className="py-4 px-2 text-center col-qty align-top">
                     <input
                       type="number"
-                      className="w-16 border rounded p-1 text-center print:border-none print:p-0 print:text-center"
+                      className="w-16 border rounded p-1 text-center print:hidden"
                       value={item.qty}
                       onChange={(e) => updateItem(idx, "qty", e.target.value)}
                     />
+                    <div className="hidden print:block">{item.qty}</div>
                   </td>
-                  <td className="py-4 px-2 text-right col-price">
+                  <td className="py-4 px-2 text-right col-price align-top">
                     <input
                       type="number"
-                      className="w-24 border rounded p-1 text-right print:border-none print:p-0 print:text-right"
+                      className="w-24 border rounded p-1 text-right print:hidden"
                       value={item.price}
                       onChange={(e) => updateItem(idx, "price", e.target.value)}
                     />
+                    <div className="hidden print:block">{item.price}</div>
                   </td>
-                  <td className="py-4 px-2 col-disc">
-                    <div className="flex items-center space-x-1 justify-center">
+                  <td className="py-4 px-2 col-disc align-top">
+                    <div className="flex items-center space-x-1 justify-center print:hidden">
                       <input
                         type="number"
-                        className="w-20 border rounded p-1 text-right text-red-500 print:border-none print:p-0 print:text-gray-800 print:text-right"
+                        className="w-20 border rounded p-1 text-right text-red-500"
                         value={item.discValue}
                         onChange={(e) =>
                           updateItem(idx, "discValue", e.target.value)
                         }
                       />
-                      <span className="hidden print:inline text-xs">
-                        {item.discType === "fixed" ? "฿" : "%"}
-                      </span>
                       <select
-                        className="text-xs border rounded p-1 no-print"
+                        className="text-xs border rounded p-1"
                         value={item.discType}
                         onChange={(e) =>
                           updateItem(idx, "discType", e.target.value)
@@ -532,13 +579,16 @@ const InvoiceDemo = () => {
                         <option value="percent">%</option>
                       </select>
                     </div>
+                    <div className="hidden print:block text-center text-gray-800">
+                      {item.discValue > 0 ? `${item.discValue} ${item.discType === "fixed" ? "฿" : "%"}` : "-"}
+                    </div>
                   </td>
-                  <td className="py-4 px-2 text-right font-semibold col-total">
+                  <td className="py-4 px-2 text-right font-semibold col-total align-top">
                     {item.rowTotal
                       .toNumber()
                       .toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="py-4 px-2 text-right no-print">
+                  <td className="py-4 px-2 text-right no-print align-top">
                     <button
                       onClick={() => removeItem(idx)}
                       className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity print:hidden no-print"
@@ -612,7 +662,7 @@ const InvoiceDemo = () => {
             <div className="flex justify-between items-center bg-red-50 p-2 rounded-md border border-red-100 print:bg-red-50 print:border-red-100 flex-print-row">
               <div className="flex items-center space-x-2">
                 <span className="text-red-600 font-bold text-xs uppercase">
-                  ส่วนลดท้ายบิล
+                  ส่วนลดท้ายระบุ
                 </span>
                 <span className="hidden print:inline text-red-600 font-bold text-xs ml-1">
                   ({globalDiscount.type === "fixed" ? "฿" : "%"})
@@ -711,6 +761,30 @@ const InvoiceDemo = () => {
                   .toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Signatures */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-8 border-t border-gray-200 print:mt-12 print:pt-8 grid-print-4 text-gray-700">
+          <div className="text-center flex flex-col items-center">
+            <div className="border-b border-gray-400 border-solid w-3/4 mt-12 mb-3"></div>
+            <p className="text-sm font-semibold">ผู้รับสินค้า</p>
+            <p className="text-xs text-gray-500 mt-2">วันที่ ____/____/____</p>
+          </div>
+          <div className="text-center flex flex-col items-center">
+            <div className="border-b border-gray-400 border-solid w-3/4 mt-12 mb-3"></div>
+            <p className="text-sm font-semibold">ผู้ส่งสินค้า</p>
+            <p className="text-xs text-gray-500 mt-2">วันที่ ____/____/____</p>
+          </div>
+          <div className="text-center flex flex-col items-center">
+            <div className="border-b border-gray-400 border-solid w-3/4 mt-12 mb-3"></div>
+            <p className="text-sm font-semibold">ผู้รับเงิน</p>
+            <p className="text-xs text-gray-500 mt-2">วันที่ ____/____/____</p>
+          </div>
+          <div className="text-center flex flex-col items-center">
+            <div className="border-b border-gray-400 border-solid w-3/4 mt-12 mb-3"></div>
+            <p className="text-sm font-semibold">ผู้มีอำนาจลงนาม</p>
+            <p className="text-xs text-gray-500 mt-2">วันที่ ____/____/____</p>
           </div>
         </div>
       </div>
