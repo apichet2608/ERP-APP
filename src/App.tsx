@@ -13,6 +13,8 @@ const InvoiceDemo = () => {
 
   const [items, setItems] = useState([
     {
+      id: 1,
+      refNo: "XXXX-01",
       desc: "Software Development",
       qty: 1,
       price: 10000,
@@ -20,6 +22,8 @@ const InvoiceDemo = () => {
       discValue: 0,
     },
     {
+      id: 2,
+      refNo: "XXXX-02",
       desc: "Hardware",
       qty: 1,
       price: 30000,
@@ -117,39 +121,173 @@ const InvoiceDemo = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-5 md:p-10 border-t-8 border-blue-600 relative overflow-hidden">
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800 print:bg-white print:p-0">
+      <style>{`
+        @media print {
+          @page { 
+            size: A4 portrait; 
+            margin: 10mm;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: white !important;
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+          }
+          .print-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            border: none !important;
+            border-top: 8px solid #2563eb !important; /* border-blue-600 */
+          }
+          input, textarea, select {
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            outline: none !important;
+            resize: none !important;
+            box-shadow: none !important;
+          }
+          input[type="date"]::-webkit-calendar-picker-indicator,
+          input[type="date"]::-webkit-inner-spin-button {
+            display: none !important;
+            -webkit-appearance: none !important;
+          }
+          input::placeholder, textarea::placeholder {
+            color: transparent !important;
+          }
+          .no-print, .no-print * {
+            display: none !important;
+          }
+          /* Force Flex Layouts */
+          .flex-print-row {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .w-print-1-2 {
+            width: 48% !important;
+          }
+          /* Grid Fix for Header Info */
+          .grid-print-2 {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          .nowrap-print {
+            white-space: nowrap !important;
+          }
+          /* Table Column Widths */
+          .col-code { width: 14% !important; }
+          .col-desc { width: 33% !important; }
+          .col-qty { width: 8% !important; }
+          .col-price { width: 13% !important; }
+          .col-disc { width: 15% !important; }
+          .col-total { width: 17% !important; }
+          
+          /* Remove Scrollbars */
+          .print-no-scroll {
+            overflow: visible !important;
+          }
+          table {
+            table-layout: fixed !important;
+            width: 100% !important;
+            border-collapse: collapse !important;
+          }
+          tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          td, th {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            font-size: 13px !important;
+            word-break: break-word !important;
+          }
+          
+          /* Watermark Adjustments */
+          .watermark-container-print {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: -1 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+        }
+      `}</style>
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-5 md:p-10 border-t-8 border-blue-600 relative overflow-visible print-container">
         {/* Watermark */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-0">
-          <span className="text-[4rem] sm:text-[6rem] md:text-[10rem] font-black text-gray-200 opacity-40 -rotate-45 select-none whitespace-nowrap">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center -z-10 overflow-hidden print:watermark-container-print">
+          <span className="text-[4rem] sm:text-[6rem] md:text-[10rem] font-black text-gray-200 opacity-[0.1] -rotate-45 select-none whitespace-nowrap print:opacity-[0.05]">
             Apichet.J
           </span>
         </div>
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between mb-10 border-b border-gray-100 pb-8">
+        <div className="flex flex-col md:flex-row justify-between mb-10 border-b border-gray-100 pb-8 flex-print-row print:mb-4 print:pb-4">
           {/* ซ้าย: ข้อมูลเอกสาร */}
-          <div className="w-full md:w-1/2">
-            <h1 className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tight mb-4">
-              INVOICE
-            </h1>
+          <div className="w-full md:w-1/2 w-print-1-2">
+            <div className="flex justify-between items-start mb-4 flex-print-row print:mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tight print:text-2xl">
+                INVOICE
+              </h1>
+              <button
+                onClick={() => window.print()}
+                className="print:hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-semibold shadow-sm no-print"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 012 2h6a2 2 0 012-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                พิมพ์เอกสาร (PDF)
+              </button>
+            </div>
 
-            <div className="space-y-3 text-sm text-gray-700">
+            <div className="space-y-3 text-sm text-gray-700 print:space-y-1">
               <div className="flex items-center">
-                <span className="w-28 font-semibold">เลขที่บิล:</span>
+                <span className="w-28 font-semibold nowrap-print">
+                  เลขที่บิล:
+                </span>
                 <input
                   type="text"
-                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48"
+                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48 print:border-none print:p-0 print:font-bold"
                   value={invoiceMeta.invoiceNo}
                   onChange={(e) => updateMeta("invoiceNo", e.target.value)}
                 />
               </div>
               <div className="flex items-center">
-                <span className="w-28 font-semibold">อ้างอิง (PO):</span>
+                <span className="w-28 font-semibold nowrap-print">
+                  อ้างอิง (PO):
+                </span>
                 <input
                   type="text"
                   placeholder="เช่น PO-2026-001"
-                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48 bg-yellow-50"
+                  className="border border-gray-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 w-full md:w-48 bg-yellow-50 print:bg-transparent print:border-none print:p-0"
                   value={invoiceMeta.refPo}
                   onChange={(e) => updateMeta("refPo", e.target.value)}
                 />
@@ -158,41 +296,43 @@ const InvoiceDemo = () => {
           </div>
 
           {/* ขวา: ข้อมูลบริษัทและเครดิต */}
-          <div className="w-full md:w-1/2 text-left md:text-right mt-6 md:mt-0">
+          <div className="w-full md:w-1/2 text-left md:text-right mt-6 md:mt-0 w-print-1-2 print:mt-0">
             <h2 className="font-bold text-base">
-              บริษัท ของคุณ จำกัด (สำนักงานใหญ่)
+              บริษัท มนตรีอะไหล่แอร์ จำกัด สำนักงานใหญ่
             </h2>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 mb-4 print:mb-1">
               เลขประจำตัวผู้เสียภาษี: 1-2345-67890-12-3
             </p>
-
-            <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100 inline-block text-left w-full md:max-w-sm ml-auto">
-              <div className="text-gray-500 flex items-center">
+            <p className="text-sm text-gray-500 mb-4">
+              77/1 หมู่ที่ ตำบลจำปา อำเภอท่าเรือ จังหวัดพระนครศรีอยุธยา 13130
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100 inline-block text-left w-full md:max-w-sm ml-auto print:bg-transparent print:border-none print:p-0 grid-print-2">
+              <div className="text-gray-500 flex items-center nowrap-print">
                 วันที่ออกบิล:
               </div>
-              <div>
+              <div className="nowrap-print">
                 <input
                   type="date"
-                  className="border border-gray-200 rounded p-1 w-full"
+                  className="border border-gray-200 rounded p-1 w-full print:border-none print:p-0"
                   value={invoiceMeta.issueDate}
                   onChange={(e) => updateMeta("issueDate", e.target.value)}
                 />
               </div>
-              <div className="text-gray-500 flex items-center">
+              <div className="text-gray-500 flex items-center nowrap-print">
                 เครดิต (วัน):
               </div>
-              <div>
+              <div className="nowrap-print">
                 <input
                   type="number"
-                  className="border border-gray-200 rounded p-1 w-full"
+                  className="border border-gray-200 rounded p-1 w-full print:border-none print:p-0"
                   value={invoiceMeta.creditDays}
                   onChange={(e) => updateMeta("creditDays", e.target.value)}
                 />
               </div>
-              <div className="text-gray-500 flex items-center font-semibold">
+              <div className="text-gray-500 flex items-center font-semibold nowrap-print">
                 วันครบกำหนด:
               </div>
-              <div className="p-1 font-bold text-blue-600">
+              <div className="p-1 font-bold text-blue-600 nowrap-print">
                 {dueDate || "-"}
               </div>
             </div>
@@ -200,7 +340,7 @@ const InvoiceDemo = () => {
         </div>
 
         {/* Mobile Card View */}
-        <div className="md:hidden space-y-4 mb-6">
+        <div className="md:hidden space-y-4 mb-6 print:hidden">
           {calculatedItems.map((item, idx) => (
             <div
               key={idx}
@@ -225,17 +365,31 @@ const InvoiceDemo = () => {
                 </svg>
               </button>
 
-              <div className="mb-4">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
-                  รายละเอียดสินค้า
-                </label>
-                <textarea
-                  className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  rows={2}
-                  placeholder="ชื่อรายการ..."
-                  value={item.desc}
-                  onChange={(e) => updateItem(idx, "desc", e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
+                    รหัสสินค้า
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    placeholder="รหัส..."
+                    value={item.refNo}
+                    onChange={(e) => updateItem(idx, "refNo", e.target.value)}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
+                    รายละเอียดสินค้า
+                  </label>
+                  <textarea
+                    className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    rows={1}
+                    placeholder="ชื่อรายการ..."
+                    value={item.desc}
+                    onChange={(e) => updateItem(idx, "desc", e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -302,57 +456,73 @@ const InvoiceDemo = () => {
         </div>
 
         {/* Table Section (Desktop/Tablet) */}
-        <div className="hidden md:block overflow-x-auto mb-6">
-          <table className="w-full text-left min-w-[800px]">
+        <div className="hidden md:block overflow-x-auto mb-6 print:block print:overflow-visible print-no-scroll">
+          <table className="w-full text-left min-w-[800px] print:min-w-0">
             <thead>
               <tr className="border-b-2 border-gray-100 text-gray-400 text-xs uppercase tracking-wider">
-                <th className="py-3 px-2">รายละเอียด</th>
-                <th className="py-3 px-2 w-20 text-center">จำนวน</th>
-                <th className="py-3 px-2 w-28 text-right">ราคา/หน่วย</th>
-                <th className="py-3 px-2 w-48 text-center">ส่วนลดสินค้า</th>
-                <th className="py-3 px-2 w-32 text-right">รวมเงิน</th>
-                <th className="py-3 px-2 w-10"></th>
+                <th className="py-3 px-2 w-32 col-code">รหัสสินค้า</th>
+                <th className="py-3 px-2 col-desc">รายละเอียด</th>
+                <th className="py-3 px-2 w-20 text-center col-qty">จำนวน</th>
+                <th className="py-3 px-2 w-28 text-right col-price">
+                  ราคา/หน่วย
+                </th>
+                <th className="py-3 px-2 w-48 text-center col-disc">
+                  ส่วนลดสินค้า
+                </th>
+                <th className="py-3 px-2 w-32 text-right col-total">รวมเงิน</th>
+                <th className="py-3 px-2 w-10 no-print"></th>
               </tr>
             </thead>
             <tbody>
               {calculatedItems.map((item, idx) => (
                 <tr key={idx} className="border-b border-gray-50 group">
-                  <td className="py-4 px-2">
+                  <td className="py-4 px-2 col-code">
                     <input
-                      className="w-full bg-transparent focus:ring-0"
+                      className="w-full bg-transparent focus:ring-0 print:border-none print:p-0 print:font-semibold"
+                      placeholder="รหัส..."
+                      value={item.refNo}
+                      onChange={(e) => updateItem(idx, "refNo", e.target.value)}
+                    />
+                  </td>
+                  <td className="py-4 px-2 col-desc">
+                    <input
+                      className="w-full bg-transparent focus:ring-0 print:border-none print:p-0"
                       placeholder="ชื่อรายการ..."
                       value={item.desc}
                       onChange={(e) => updateItem(idx, "desc", e.target.value)}
                     />
                   </td>
-                  <td className="py-4 px-2 text-center">
+                  <td className="py-4 px-2 text-center col-qty">
                     <input
                       type="number"
-                      className="w-16 border rounded p-1 text-center"
+                      className="w-16 border rounded p-1 text-center print:border-none print:p-0 print:text-center"
                       value={item.qty}
                       onChange={(e) => updateItem(idx, "qty", e.target.value)}
                     />
                   </td>
-                  <td className="py-4 px-2 text-right">
+                  <td className="py-4 px-2 text-right col-price">
                     <input
                       type="number"
-                      className="w-24 border rounded p-1 text-right"
+                      className="w-24 border rounded p-1 text-right print:border-none print:p-0 print:text-right"
                       value={item.price}
                       onChange={(e) => updateItem(idx, "price", e.target.value)}
                     />
                   </td>
-                  <td className="py-4 px-2">
+                  <td className="py-4 px-2 col-disc">
                     <div className="flex items-center space-x-1 justify-center">
                       <input
                         type="number"
-                        className="w-20 border rounded p-1 text-right text-red-500"
+                        className="w-20 border rounded p-1 text-right text-red-500 print:border-none print:p-0 print:text-gray-800 print:text-right"
                         value={item.discValue}
                         onChange={(e) =>
                           updateItem(idx, "discValue", e.target.value)
                         }
                       />
+                      <span className="hidden print:inline text-xs">
+                        {item.discType === "fixed" ? "฿" : "%"}
+                      </span>
                       <select
-                        className="text-xs border rounded p-1"
+                        className="text-xs border rounded p-1 no-print"
                         value={item.discType}
                         onChange={(e) =>
                           updateItem(idx, "discType", e.target.value)
@@ -363,15 +533,15 @@ const InvoiceDemo = () => {
                       </select>
                     </div>
                   </td>
-                  <td className="py-4 px-2 text-right font-semibold">
+                  <td className="py-4 px-2 text-right font-semibold col-total">
                     {item.rowTotal
                       .toNumber()
                       .toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="py-4 px-2 text-right">
+                  <td className="py-4 px-2 text-right no-print">
                     <button
                       onClick={() => removeItem(idx)}
-                      className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity print:hidden no-print"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -397,19 +567,27 @@ const InvoiceDemo = () => {
           onClick={() =>
             setItems([
               ...items,
-              { desc: "", qty: 1, price: 0, discType: "fixed", discValue: 0 },
+              {
+                id: Date.now(),
+                refNo: "",
+                desc: "",
+                qty: 1,
+                price: 0,
+                discType: "fixed",
+                discValue: 0,
+              },
             ])
           }
-          className="text-blue-600 text-sm font-bold mb-10"
+          className="text-blue-600 text-sm font-bold mb-10 print:hidden"
         >
           + เพิ่มรายการ
         </button>
 
         {/* Summary */}
-        <div className="flex flex-col md:flex-row justify-between border-t border-gray-200 pt-6">
+        <div className="flex flex-col md:flex-row justify-between border-t border-gray-200 pt-6 flex-print-row items-end print:pt-4">
           {/* ซ้าย: แสดงตัวอักษรภาษาไทย */}
-          <div className="w-full md:w-1/2 mb-6 md:mb-0 pr-0 md:pr-8 flex flex-col justify-end">
-            <div className="bg-blue-50 text-blue-800 text-center p-4 rounded-lg font-semibold shadow-inner border border-blue-100">
+          <div className="w-full md:w-1/2 mb-6 md:mb-0 pr-0 md:pr-8 flex flex-col justify-end w-print-1-2 h-full print:mb-0">
+            <div className="bg-blue-50 text-blue-800 text-center p-4 rounded-lg font-semibold shadow-inner border border-blue-100 print:p-2 print:text-sm">
               {netPayable.greaterThan(0)
                 ? `( ${ThaiBaht(netPayable.toNumber())} )`
                 : "( ศูนย์บาทถ้วน )"}
@@ -420,8 +598,8 @@ const InvoiceDemo = () => {
           </div>
 
           {/* ขวา: การคำนวณเงิน */}
-          <div className="w-full md:w-80 space-y-4">
-            <div className="flex justify-between text-gray-500">
+          <div className="w-full md:w-80 space-y-4 print:w-80 print:ml-auto">
+            <div className="flex justify-between text-gray-500 flex-print-row">
               <span>รวมเงิน (Gross)</span>
               <span>
                 {totalAfterLineDiscounts
@@ -431,13 +609,16 @@ const InvoiceDemo = () => {
             </div>
 
             {/* Global Discount */}
-            <div className="flex justify-between items-center bg-red-50 p-2 rounded-md border border-red-100">
+            <div className="flex justify-between items-center bg-red-50 p-2 rounded-md border border-red-100 print:bg-red-50 print:border-red-100 flex-print-row">
               <div className="flex items-center space-x-2">
                 <span className="text-red-600 font-bold text-xs uppercase">
                   ส่วนลดท้ายบิล
                 </span>
+                <span className="hidden print:inline text-red-600 font-bold text-xs ml-1">
+                  ({globalDiscount.type === "fixed" ? "฿" : "%"})
+                </span>
                 <select
-                  className="text-xs border-none bg-transparent p-0 text-red-600 font-bold focus:ring-0"
+                  className="text-xs border-none bg-transparent p-0 text-red-600 font-bold focus:ring-0 print:hidden"
                   value={globalDiscount.type}
                   onChange={(e) =>
                     setGlobalDiscount({
@@ -452,7 +633,7 @@ const InvoiceDemo = () => {
               </div>
               <input
                 type="number"
-                className="w-20 text-right bg-transparent border-b border-red-300 text-red-600 font-semibold focus:outline-none"
+                className="w-20 text-right bg-transparent border-b border-red-300 text-red-600 font-semibold focus:outline-none print:border-none print:p-0"
                 value={globalDiscount.value}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setGlobalDiscount({
@@ -480,7 +661,7 @@ const InvoiceDemo = () => {
                   onChange={(e) =>
                     setTaxConfig({ ...taxConfig, isVat: e.target.checked })
                   }
-                  className="mr-2 rounded text-blue-600 focus:ring-blue-500"
+                  className="mr-2 rounded text-blue-600 focus:ring-blue-500 print:hidden"
                 />
                 VAT 7%
               </label>
@@ -508,7 +689,7 @@ const InvoiceDemo = () => {
                   onChange={(e) =>
                     setTaxConfig({ ...taxConfig, isWHT: e.target.checked })
                   }
-                  className="mr-2 rounded text-orange-600 focus:ring-orange-500"
+                  className="mr-2 rounded text-orange-600 focus:ring-orange-500 print:hidden"
                 />
                 หัก ณ ที่จ่าย 3%
               </label>
