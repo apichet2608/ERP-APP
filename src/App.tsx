@@ -74,7 +74,85 @@ const docTypeLabels: any = {
   TAX_INVOICE: "ใบกำกับภาษี",
 };
 
+const WelcomeModal = ({ show, onClose }: { show: boolean, onClose: () => void }) => {
+  if (!show) return null;
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm print:hidden">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+        <div className="bg-blue-600 p-8 text-white text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
+              <path d="M0,100 C30,0 70,0 100,100 Z" fill="currentColor" />
+            </svg>
+          </div>
+          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-5 backdrop-blur-md relative z-10 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-black mb-2 relative z-10 tracking-tight">ยินดีต้อนรับสู่ Demo</h2>
+          <p className="text-blue-100 text-sm relative z-10 font-medium tracking-wide">ระบบจัดทำบิลและใบกำกับภาษีออนไลน์</p>
+        </div>
+        
+        <div className="p-8 space-y-6 bg-white">
+          <div className="flex gap-4 items-start group">
+            <div className="bg-blue-50 p-3.5 rounded-2xl text-blue-600 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-800 text-lg mb-1">หน้าแดชบอร์ดสรุปยอด</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">หน้าแรกสำหรับติดตามยอดขาย สถานะการชำระเงิน และประวัติบิลทั้งหมดที่คุณสร้างไว้</p>
+            </div>
+          </div>
+          
+          <div className="flex gap-4 items-start group">
+            <div className="bg-green-50 p-3.5 rounded-2xl text-green-600 shrink-0 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-800 text-lg mb-1">ทดลองสร้างและแก้ไขบิล</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">สามารถเลือกประเภทเอกสาร เลือกสินค้าจาก Catalog จำลอง และระบบจะคำนวณราคา VAT/WHT ให้อัตโนมัติ</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 items-start group">
+            <div className="bg-purple-50 p-3.5 rounded-2xl text-purple-600 shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-800 text-lg mb-1">บันทึก & พร้อมพิมพ์ PDF</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">บันทึกข้อมูลและกดปุ่มพิมพ์เอกสารเพื่อดูตัวอย่างแบบฟอร์มที่มีดีไซน์สวยงาม สร้างความน่าเชื่อถือ</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-8 bg-gray-50 border-t border-gray-100 flex flex-col items-center">
+          <button
+            onClick={onClose}
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3.5 rounded-xl font-bold text-lg shadow-[0_8px_16px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_20px_rgba(37,99,235,0.35)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+          >
+            เริ่มทดลองใช้งานระบบ
+          </button>
+          <p className="text-xs text-gray-400 mt-4 font-medium uppercase tracking-wider">Interactive Demo Preview</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const InvoiceDemo = () => {
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  const closeWelcome = () => {
+    setShowWelcome(false);
+  };
+
   const [viewMode, setViewMode] = useState<"dashboard" | "invoice">(
     "dashboard",
   );
@@ -276,6 +354,7 @@ const InvoiceDemo = () => {
     const pendingCount = historyList.filter((doc) => doc.status === "PENDING").length;
     return (
       <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
+        <WelcomeModal show={showWelcome} onClose={closeWelcome} />
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold text-gray-800">
