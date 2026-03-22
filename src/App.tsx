@@ -71,6 +71,7 @@ function PdfApp() {
 
   const handlePreview = async () => {
     setIsLoading(true);
+    // const ip = "http://127.0.0.1:3000";
     const ip = "http://192.168.1.38:8082";
     // const ip = "http://172.20.10.3:8082";
     //
@@ -460,7 +461,7 @@ function PdfApp() {
                   value={config.dataType}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm transition-all bg-white cursor-pointer"
-                  disabled
+                  // disabled
                 >
                   <option value="it">💻 ชุดอุปกรณ์ไอที (5 รายการ)</option>
                   <option value="office">
