@@ -1,0 +1,25 @@
+# docker compose up -d --build
+version: "3.8"
+
+services:
+  erp-app:
+    image: nginx:1.29.3-trixie-perl
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Bangkok
+      - PGTZ=Asia/Bangkok
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - ../dist:/projects
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "1"
+    container_name: erp-app-container
+    networks:
+      - smart-reverse-proxy-network # 🧩 อยู่ใน network เดียวกับ Gateway
+
+networks:
+  smart-reverse-proxy-network:
+    external: true

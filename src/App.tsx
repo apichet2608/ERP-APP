@@ -3,6 +3,18 @@ import PdfPreviewModal from "./PdfPreviewModal";
 import Decimal from "decimal.js";
 import ThaiBahtText from "thai-baht-text";
 
+// สร้าง Helper สำหรับสร้าง ID (UUID) แบบ Fallback กรณี crypto.randomUUID ไม่ทำงาน (เช่น HTTP หรือ Non-localhost)
+const generateUUID = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 // สร้าง Interface สำหรับ Item เพื่อความชัดเจนของ Type
 interface InvoiceItem {
   id: string; // ใช้สำหรับอ้างอิงตอนลบ/แก้ไข (หลีกเลี่ยงการใช้ Index)
@@ -59,7 +71,7 @@ function PdfApp() {
   // State ใหม่สำหรับเก็บรายการสินค้าที่กรอกเอง (Custom Items)
   const [customItems, setCustomItems] = useState<InvoiceItem[]>([
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: "",
       unitPrice: 0,
       quantity: 1,
@@ -361,7 +373,7 @@ function PdfApp() {
     setCustomItems((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name: "",
         unitPrice: 0,
         quantity: 1,
